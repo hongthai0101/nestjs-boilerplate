@@ -1,0 +1,7 @@
+{
+  "confirmEmail": "Confirm email",
+  "resetPassword": "Reset password",
+  "create": {
+    "success": "Create successfully"
+  }
+}

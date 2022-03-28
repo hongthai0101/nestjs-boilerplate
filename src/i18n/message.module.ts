@@ -1,0 +1,34 @@
+import { Module, Global } from '@nestjs/common';
+import * as path from 'path';
+import { I18nModule, I18nJsonParser, HeaderResolver } from 'nestjs-i18n';
+import { ConfigService } from '@nestjs/config';
+import { ENUM_MESSAGE_LANGUAGE } from './message.constant';
+import { MessageService } from './message.service';
+
+@Global()
+@Module({
+  providers: [MessageService],
+  exports: [MessageService],
+  imports: [
+    I18nModule.forRootAsync({
+      useFactory: (configService: ConfigService) => ({
+        fallbackLanguage: configService
+          ? configService.get<string>('app.fallbackLanguage')
+          : ENUM_MESSAGE_LANGUAGE.en,
+        fallbacks: Object.values(ENUM_MESSAGE_LANGUAGE).reduce(
+          (a, v) => ({ ...a, [`${v}-*`]: v }),
+          {},
+        ),
+        parserOptions: {
+          path: path.join(__dirname, '/translations/'),
+          watch: true,
+        },
+      }),
+      parser: I18nJsonParser,
+      inject: [ConfigService],
+      resolvers: [new HeaderResolver(['x-custom-lang'])],
+    }),
+  ],
+  controllers: [],
+})
+export class MessageModule {}
