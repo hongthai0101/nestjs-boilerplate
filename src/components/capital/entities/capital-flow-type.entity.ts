@@ -20,6 +20,6 @@ export class CapitalFlowTypeEntity extends AbstractEntity {
   @Column('varchar', { length: 20 })
   name: string;
 
-  @OneToMany(type => CapitalFlowEntity, flow => flow.type)
+  @OneToMany(() => CapitalFlowEntity, flow => flow.type)
   flows: CapitalFlowEntity[];
 }

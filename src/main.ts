@@ -6,7 +6,7 @@ import validationOptions from './utils/validation-options';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 
 async function bootstrap() {
-  const app = await NestFactory.create(AppModule, { cors: true });
+  const app = await NestFactory.create(AppModule);
   const configService = app.get(ConfigService);
   app.enableShutdownHooks();
   app.setGlobalPrefix(configService.get('app.apiPrefix'), {

@@ -22,6 +22,7 @@ import {
 import { CapitalFlowEntity } from '../entities';
 import { Response, validateRelation, IPaginationResponse } from 'src/utils';
 import { Between } from 'typeorm';
+import { IsDateString } from 'class-validator';
 
 @ApiBearerAuth()
 @UseGuards(AuthGuard('jwt'))
@@ -87,9 +88,23 @@ export class CapitalFlowController {
     this.flowService.delete(id);
   }
 
+  @Response('common.find.success')
   @Get('/amount/group')
   @HttpCode(HttpStatus.OK)
-  async amountGroup() {
-    return this.flowService.findAmountGroup();
+  async amountGroup(
+    @Query('startDate') startDate: string,
+    @Query('endDate') endDate: string,
+  ) {
+    return this.flowService.findAmountGroup(startDate, endDate);    
+  }
+
+  @Response('common.find.success')
+  @Get('/amount/sum')
+  @HttpCode(HttpStatus.OK)
+  async amountSum(
+    @Query('startDate') startDate: string,
+    @Query('endDate') endDate: string,
+  ) {
+    return this.flowService.findSumPriceByDate(startDate, endDate);    
   }
 }

@@ -37,8 +37,8 @@ export class TaskController {
   @Response('common.create.success')
   @Post()
   @HttpCode(HttpStatus.CREATED)
-  create(@Body() params: CreateTaskDto) {
-    return this.service.create(params);
+  create(@Body() body: CreateTaskDto) {    
+    return this.service.create(body);
   }
 
   @Response('common.list.success')
@@ -52,7 +52,7 @@ export class TaskController {
       uid: id
     }
     if (startDate && endDate)
-      Object.assign(where, { createdAt: Between(startDate, endDate) });
+      Object.assign(where, { date: Between(startDate, endDate) });
 
     const items = await this.service.find({where});
     const data = {
@@ -93,13 +93,17 @@ export class TaskController {
 
   @Patch(':id')
   @HttpCode(HttpStatus.NO_CONTENT)
-  update(@Param('id') id: string, @Body() params: UpdateTaskDto) {
-    this.service.update(id, params);
+  async update(@Param('id') id: string, @Body() {rollback}: UpdateTaskDto) {
+    const item = await this.service.findById(id);
+    const type = rollback ? item.type - 1 : item.type + 1;
+    await this.service.update(id, {type});
+    return ;
   }
 
   @Delete(':id')
   @HttpCode(HttpStatus.NO_CONTENT)
-  remove(@Param('id') id: string) {
-    this.service.delete(id);
+  async remove(@Param('id') id: string) {
+    await this.service.delete(id);
+    return ;
   }
 }

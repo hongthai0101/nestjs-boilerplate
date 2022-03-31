@@ -21,7 +21,7 @@ export class CapitalFlowEntity extends AbstractEntity {
   @Column('decimal', { precision: 9, scale: 2 })
   price: number;
 
-  @ManyToOne(type => CapitalFlowTypeEntity, type => type.flows)
+  @ManyToOne(() => CapitalFlowTypeEntity)
   @JoinTable({ name: 'typeId' })
   type: CapitalFlowTypeEntity;
 

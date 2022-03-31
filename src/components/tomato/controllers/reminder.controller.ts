@@ -20,9 +20,10 @@ import {
   UpdateReminderDto,
 } from '../dto';
 import { ReminderEntity } from '../entities';
-import { Response, IPaginationResponse, QueryBaseList } from 'src/utils';
+import { Response, IPaginationResponse } from 'src/utils';
 import { Between } from 'typeorm';
 import { User } from 'src/components/auth/auth.decorator';
+import {  } from 'lodash';
 
 @ApiBearerAuth()
 @UseGuards(AuthGuard('jwt'))
@@ -38,22 +39,25 @@ export class ReminderController {
   @Post()
   @HttpCode(HttpStatus.CREATED)
   create(@Body() params: CreateReminderDto) {
-    return this.service.create(params);
+    const data = {
+      content: params.content,
+      createdAt: params.date
+    }
+    return this.service.create(data);
   }
 
   @Response('common.list.success')
   @Get()
   @HttpCode(HttpStatus.OK)
   async findAll(
-    @Query() { filter, startDate, endDate }: FindReminderDto,
-    @User('id') id: number
+    @Query() { filter, startDate, endDate, type }: FindReminderDto,
+    @User('id') uid: number
   ): Promise<IPaginationResponse> {
 
-    const where = {
-      uid: id
-    };
+    const where = { uid };
     if (startDate && endDate)
       Object.assign(where, { createdAt: Between(startDate, endDate) });
+    if (type) Object.assign(where, { type });
 
     const items = await this.service.find({ ...filter, where });
     const total = await this.service.count({ where });
@@ -74,8 +78,13 @@ export class ReminderController {
 
   @Patch(':id')
   @HttpCode(HttpStatus.NO_CONTENT)
-  update(@Param('id') id: string, @Body() params: UpdateReminderDto) {
-    this.service.update(id, params);
+  update(@Param('id') id: string, @Body() {content, date, type}: UpdateReminderDto) {
+    const data = {
+      content,
+      createdAt: date
+    }
+    if(type) Object.assign(data, { type });
+    this.service.update(id, data);
   }
 
   @Delete(':id')

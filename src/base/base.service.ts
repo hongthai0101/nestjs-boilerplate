@@ -72,7 +72,7 @@ export class BaseService<T extends AbstractEntity>
   }
 
   public create(doc: AbstractDocument<T> | any): Promise<T> {
-    const entity = this.repository.create({ ...doc, uid: this.auth.id });
+    const entity = this.repository.create({ ...doc, uid: this.auth.id });    
     return this.repository.save(entity as any);
   }
 

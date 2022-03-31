@@ -38,7 +38,7 @@ export class AuthService {
   async validateLogin(
     loginDto: AuthEmailLoginDto,
     onlyAdmin: boolean,
-  ): Promise<{ token: string; user: UserEntity; expiresIn: number }> {    
+  ): Promise<{ token: string; userInfo: UserEntity; expiresIn: number }> {    
     const user = await this.usersService.findOne({
       where: { email: loginDto.email },
     });
@@ -89,7 +89,7 @@ export class AuthService {
 
       return {
         token,
-        user: omit(user, ['password', 'previousPassword', 'role.createdAt', 'role.updatedAt', 'status.createdAt', 'status.updatedAt']),
+        userInfo: omit(user, ['password', 'previousPassword', 'role.createdAt', 'role.updatedAt', 'status.createdAt', 'status.updatedAt']),
         expiresIn: this.configService.get('auth.expires'),
       };
     } else {

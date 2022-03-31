@@ -26,6 +26,9 @@ export const middlewareConfig = registerAs(
         'Host',
         'X-Requested-With',
         'x-custom-lang',
+        'successAlert',
+        'errorAlert',
+        'isLoading'
       ],
     },
     rateLimit: {
