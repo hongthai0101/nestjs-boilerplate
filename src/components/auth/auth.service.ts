@@ -1,5 +1,5 @@
 import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
-import { JwtService } from '@nestjs/jwt';
+import { JwtService, JwtSignOptions } from '@nestjs/jwt';
 import { UserEntity } from '../users/entities';
 import { AuthUpdateDto, AuthRegisterLoginDto, AuthEmailLoginDto } from './dto';
 import { RoleEnum } from 'src/components/roles/roles.enum';
@@ -17,6 +17,7 @@ import { ConfigService } from '@nestjs/config';
 import { HelperHashService } from 'src/helper/service';
 import { randomStringGenerator } from '@nestjs/common/utils/random-string-generator.util';
 import { createHash } from 'crypto';
+import moment from 'moment';
 
 @Injectable()
 export class AuthService {
@@ -38,7 +39,7 @@ export class AuthService {
   async validateLogin(
     loginDto: AuthEmailLoginDto,
     onlyAdmin: boolean,
-  ): Promise<{ token: string; userInfo: UserEntity; expiresIn: number }> {    
+  ): Promise<{ token: string; userInfo: UserEntity; expiresIn: number, expireAt: number }> {    
     const user = await this.usersService.findOne({
       where: { email: loginDto.email },
     });
@@ -79,18 +80,21 @@ export class AuthService {
     );
 
     if (isValidPassword) {
+      const expiresIn = loginDto.rememberMe ? this.configService.get('auth.expireRememberMe') : this.configService.get('auth.expires');
+      const options: JwtSignOptions = loginDto.rememberMe ? {expiresIn} : {};
       const token = await this.jwtService.sign({
         id: user.id,
         email,
         firstName,
         lastName,
         role,
-      });
+      }, options);
 
       return {
         token,
         userInfo: omit(user, ['password', 'previousPassword', 'role.createdAt', 'role.updatedAt', 'status.createdAt', 'status.updatedAt']),
-        expiresIn: this.configService.get('auth.expires'),
+        expiresIn,
+        expireAt: moment().add(expiresIn, 'millisecond').unix()
       };
     } else {
       throw new HttpException(

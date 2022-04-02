@@ -58,10 +58,7 @@ export class UserEntity extends AbstractEntity {
   @Column({ nullable: true })
   lastName: string | null;
 
-  @ManyToOne(() => FileEntity, {
-    eager: true,
-  })
-  photo?: FileEntity | null;
+  avatar?: string;
 
   @ManyToOne(() => RoleEntity, {
     eager: true,

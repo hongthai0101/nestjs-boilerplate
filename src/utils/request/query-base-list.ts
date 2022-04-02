@@ -62,6 +62,16 @@ export class QueryBaseList {
 
   @ApiProperty({
     required: false,
+    example: 'column1,column2',
+    default: '*'
+  })
+  @Expose()
+  @IsOptional()
+  @IsString()
+  readonly selects: string;
+
+  @ApiProperty({
+    required: false,
     example: 'search',
     default: '',
   })
@@ -79,10 +89,13 @@ export class QueryBaseList {
       const take = getTake(obj);
       const skip = getSkip(obj, take);
       const relations = getRelations(obj);
+      const select = getSelects(obj);
 
-      return relations.length === 0
+      const filter = relations.length === 0
         ? { order, take, skip }
         : { order, take, skip, relations };
+      if(select) Object.assign(filter, {select})
+      return filter;
     },
     {
       toClassOnly: true,
@@ -115,4 +128,11 @@ function getRelations(obj): Array<string> {
   const relations = obj.relations;
   if (!relations) return [];
   return relations.split(',');
+}
+
+function getSelects(obj): object {
+  const selects = obj.selects;
+  if (!selects) return null;
+  const columns: Array<string> = selects.split(',');
+  return columns.reduce(((int = {}, column: string) => Object.assign(int, {[column]: true})), {});
 }

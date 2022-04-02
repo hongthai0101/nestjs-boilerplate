@@ -55,10 +55,10 @@ export class LogController {
     if (startDate && endDate)
       Object.assign(where, { createdAt: Between(startDate, endDate) });
     if (logType) Object.assign(where, { logType });
-    if (company) Object.assign(where, { company: { id: company } });
+    if (company) Object.assign(where, { company: {id: company} });
 
-    const items = await this.service.find(filter);
-    const total = await this.service.count(filter);
+    const items = await this.service.find({ ...filter, where });
+    const total = await this.service.count({where});
     return {
       items,
       total,
