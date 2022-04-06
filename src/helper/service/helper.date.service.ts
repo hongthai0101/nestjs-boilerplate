@@ -7,7 +7,7 @@ export class HelperDateService {
     return moment().diff(dateOfBirth, 'years');
   }
 
-  diff(dateOne: Date, dateTwo: Date, options?: string): number {
+  diff(dateOne: string, dateTwo: string, options?: string): number {
     const mDateOne = moment(dateOne);
     const mDateTwo = moment(dateTwo);
     const diff = moment.duration(mDateTwo.diff(mDateOne));
@@ -49,8 +49,9 @@ export class HelperDateService {
     return moment().subtract(minutes, 'm').toDate();
   }
 
-  forwardInDays(days: number): Date {
-    return moment().add(days, 'd').toDate();
+  forwardInDays(input?: string, days: number = 1): Date {
+    const date = input ? moment(input) : moment();
+    return date.add(days, 'd').toDate();
   }
 
   backwardInDays(days: number): Date {

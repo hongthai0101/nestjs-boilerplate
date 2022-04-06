@@ -13,16 +13,15 @@ import {
 } from '@nestjs/common';
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 import { AuthGuard } from '@nestjs/passport';
-import { CapitalFlowService } from '../services';
+import { CapitalFlowService, ICalculateFundResult, ISumPriceByDateResult } from '../services';
 import {
   CreateCapitaFlowDto,
   FlowPaginationDto,
+  SumPriceByDateDto,
   UpdateCapitalFlowDto,
 } from '../dto';
 import { CapitalFlowEntity } from '../entities';
 import { Response, validateRelation, IPaginationResponse } from 'src/utils';
-import { Between } from 'typeorm';
-import { IsDateString } from 'class-validator';
 
 @ApiBearerAuth()
 @UseGuards(AuthGuard('jwt'))
@@ -45,22 +44,27 @@ export class CapitalFlowController {
   @Get()
   @HttpCode(HttpStatus.OK)
   async findAll(
-    @Query() { startDate, endDate, type, filter }: FlowPaginationDto,
+    @Query() { startDate, endDate, type, filter, keyword, typeName }: FlowPaginationDto,
   ): Promise<IPaginationResponse> {
-    const { relations } = filter;
-    if (relations) validateRelation(relations, ['type']);
+    return this.flowService.findAndCountByUid(filter, startDate, endDate, type, keyword, typeName);
+  }
 
-    const where = {};
-    if (startDate && endDate)
-      Object.assign(where, { createdAt: Between(startDate, endDate) });
-    if (type) Object.assign(where, { type: { id: type } });
+  @Response('common.list.success')
+  @Get('calculate-funds')
+  @HttpCode(HttpStatus.OK)
+  async calculateFunds(
+    @Query() { startDate, endDate, type, keyword, typeName }: FlowPaginationDto,
+  ): Promise<ICalculateFundResult> {
+      return this.flowService.calculateFunds( startDate, endDate, type, keyword, typeName);
+  }
 
-    const items = await this.flowService.find({ ...filter, where });
-    const total = await this.flowService.count({ where });
-    return {
-      items,
-      total,
-    };
+  @Response('common.list.success')
+  @Get('amount')
+  @HttpCode(HttpStatus.OK)
+  async sumAmount(
+    @Query() { startDate, endDate}: SumPriceByDateDto,
+  ): Promise<ISumPriceByDateResult[]> {
+      return this.flowService.findSumPriceByDate( startDate, endDate);
   }
 
   @Response('common.find.success')

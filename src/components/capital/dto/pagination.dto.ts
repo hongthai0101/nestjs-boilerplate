@@ -1,6 +1,6 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { Transform, Type } from 'class-transformer';
-import { IsArray, IsDate, IsOptional, IsUUID } from 'class-validator';
+import { Type } from 'class-transformer';
+import { IsDate, IsOptional, IsUUID } from 'class-validator';
 import { QueryBaseList } from 'src/utils';
 
 export class FlowPaginationDto extends QueryBaseList {
@@ -15,9 +15,13 @@ export class FlowPaginationDto extends QueryBaseList {
     required: false,
   })
   @IsOptional()
-  @Type(() => Date)
-  @IsDate()
-  readonly startDate: Date;
+  readonly typeName: string;
+
+  @ApiProperty({
+    required: false,
+  })
+  @IsOptional()
+  readonly keyword: string;
 
   @ApiProperty({
     required: false,
@@ -25,5 +29,13 @@ export class FlowPaginationDto extends QueryBaseList {
   @IsOptional()
   @Type(() => Date)
   @IsDate()
-  readonly endDate: Date;
+  readonly startDate: Date = new Date();
+
+  @ApiProperty({
+    required: false,
+  })
+  @IsOptional()
+  @Type(() => Date)
+  @IsDate()
+  readonly endDate: Date = new Date();
 }
