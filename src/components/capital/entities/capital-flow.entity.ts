@@ -9,7 +9,7 @@ import {
 import { CapitalFlowTypeEntity } from './capital-flow-type.entity';
 import { AbstractEntity } from 'src/base';
 
-@Entity({ name: 'capital-flows' })
+@Entity({ name: 'capital_flows' })
 export class CapitalFlowEntity extends AbstractEntity {
   @PrimaryGeneratedColumn('uuid')
   id: string;

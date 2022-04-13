@@ -13,9 +13,6 @@ export class ReminderEntity extends AbstractEntity {
     @Column('varchar', { length: 255 })
     content: string;
 
-    @Column('bigint')
-    date: number
-
     @Column("smallint", {default: 1})
     type: number
 }

@@ -2,7 +2,7 @@ import { Column, Entity, PrimaryGeneratedColumn, Index, OneToMany } from 'typeor
 import { AbstractEntity } from 'src/base';
 import { CapitalFlowEntity } from './capital-flow.entity';
 
-@Entity({ name: 'capital-flow-types' })
+@Entity({ name: 'capital_flow_types' })
 export class CapitalFlowTypeEntity extends AbstractEntity {
   @PrimaryGeneratedColumn('uuid')
   id: string;

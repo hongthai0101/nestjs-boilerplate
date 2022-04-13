@@ -1,7 +1,7 @@
 import { Column, Entity, PrimaryGeneratedColumn, Index } from 'typeorm';
 import { AbstractEntity } from 'src/base';
 
-@Entity({ name: 'todo-lists' })
+@Entity({ name: 'todo_lists' })
 export class TodoListEntity extends AbstractEntity {
     @PrimaryGeneratedColumn('uuid')
     id: string;

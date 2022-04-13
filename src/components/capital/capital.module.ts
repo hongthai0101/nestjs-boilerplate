@@ -15,5 +15,6 @@ import { CapitalFlowService, CapitalFlowTypeService } from './services';
   ],
   controllers: [CapitalFlowController, CapitalFlowTypeController],
   providers: [CapitalFlowService, CapitalFlowTypeService],
+  exports: [CapitalFlowService]
 })
 export class CapitalModule {}

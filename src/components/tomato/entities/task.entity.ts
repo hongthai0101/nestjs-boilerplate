@@ -16,9 +16,6 @@ export class TaskEntity extends AbstractEntity {
     @Column("jsonb", { nullable: true, default: null })
     images: Array<string>
 
-    @Column("timestamp")
-    date: Date
-
     @Column("int2", { default: 1 })
     type: number
 

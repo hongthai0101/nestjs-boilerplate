@@ -1,7 +1,7 @@
 import { Column, Entity, PrimaryGeneratedColumn, Index } from 'typeorm';
 import { AbstractEntity } from 'src/base';
 
-@Entity({ name: 'inner-messages' })
+@Entity({ name: 'inner_messages' })
 export class InnerMessageEntity extends AbstractEntity {
     @PrimaryGeneratedColumn("uuid")
     id: string;

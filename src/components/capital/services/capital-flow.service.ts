@@ -4,6 +4,7 @@ import { CapitalFlowEntity, CapitalFlowTypeEntity } from '../entities';
 import { BaseService } from 'src/base';
 import { IPaginationResponse, validateRelation } from 'src/utils';
 import { HelperDateService } from 'src/helper/service';
+import moment from 'moment';
 
 export type ICalculateFundResult = {
   income: number | string,
@@ -56,18 +57,22 @@ export class CapitalFlowService extends BaseService<CapitalFlowEntity> {
    */
   public async findSumPriceByDate(
     startDate: string, 
-    endDate: string
+    endDate?: string
   ): Promise<ISumPriceByDateResult[]> {
+
+    startDate = startDate || moment().startOf('hour').subtract(7, 'd').format('YYYY-MM-DD')
+    endDate = endDate || moment().format('YYYY-MM-DD')
+
     const result = await this.repository
     .createQueryBuilder('F')
-      .select('SUM(F.price) as amount, T.type, to_date(T.createdAt::TEXT) AS date')
+      .select(`SUM(F.price) as amount, T.type, to_date("T"."createdAt"::TEXT, 'YYYY-MM-DD') AS date`)
       .innerJoin(CapitalFlowTypeEntity, 'T', 'F.typeId = T.id')
       .where('F.uid = :uid', { uid: this.auth.id })
-      .andWhere('to_date(T.createdAt::TEXT) >= :startDate', { startDate })
-      .andWhere('to_date(T.createdAt::TEXT) <= :endDate', { endDate })
+      .andWhere(`to_date("T"."createdAt"::TEXT, 'YYYY-MM-DD') >= :startDate`, { startDate })
+      .andWhere(`to_date("T"."createdAt"::TEXT, 'YYYY-MM-DD') <= :endDate`, { endDate })
       .groupBy('T.type')
-      .addGroupBy('date')
-      .orderBy('date')
+      .addGroupBy('T.createdAt')
+      .orderBy('T.createdAt')
       .getRawMany();
 
     const durations = this.dateService.diff(startDate, endDate, 'days');
