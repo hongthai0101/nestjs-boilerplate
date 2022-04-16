@@ -1,6 +1,6 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { Type } from 'class-transformer';
-import { IsDate, IsOptional } from 'class-validator';
+import { IsDate, IsDateString, IsOptional } from 'class-validator';
 import moment from 'moment';
 
 export class SumPriceByDateDto {
@@ -8,15 +8,13 @@ export class SumPriceByDateDto {
     required: false,
   })
   @IsOptional()
-  @Type(() => Date)
-  @IsDate()
+  @IsDateString()
   readonly startDate: string = moment().startOf('hour').subtract(7, 'd').format('YYYY-MM-DD');
 
   @ApiProperty({
     required: false,
   })
   @IsOptional()
-  @Type(() => Date)
-  @IsDate()
+  @IsDateString()
   readonly endDate: string = moment().format('YYYY-MM-DD')
 }

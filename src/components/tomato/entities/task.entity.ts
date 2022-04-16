@@ -10,6 +10,9 @@ export class TaskEntity extends AbstractEntity {
     @Index()
     uid: number;
 
+    @Column("date")
+    date: string;
+
     @Column('varchar', { length: 255 })
     content: string;
 

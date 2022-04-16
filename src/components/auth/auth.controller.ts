@@ -37,6 +37,7 @@ export class AuthController {
     return this.service.validateLogin(loginDto, false);
   }
 
+  @Response('auth.login.success')
   @Post('admin/login')
   @HttpCode(HttpStatus.OK)
   public async adminLogin(@Body() loginDTO: AuthEmailLoginDto) {
@@ -50,18 +51,21 @@ export class AuthController {
     return this.service.register(createUserDto);
   }
 
+  @Response('auth.confirm.success')
   @Post('confirm')
   @HttpCode(HttpStatus.OK)
   async confirmEmail(@Body() confirmEmailDto: AuthConfirmEmailDto) {
     return this.service.confirmEmail(confirmEmailDto.hash);
   }
 
+  @Response('auth.forgot-password.success')
   @Post('forgot/password')
   @HttpCode(HttpStatus.OK)
   async forgotPassword(@Body() forgotPasswordDto: AuthForgotPasswordDto) {
     return this.service.forgotPassword(forgotPasswordDto.email);
   }
 
+  @Response('auth.reset-password.success')
   @Post('reset/password')
   @HttpCode(HttpStatus.OK)
   async resetPassword(@Body() resetPasswordDto: AuthResetPasswordDto) {
@@ -72,6 +76,7 @@ export class AuthController {
   }
 
   @ApiBearerAuth()
+  @Response('auth.success')
   @Get('me')
   @UseGuards(AuthGuard('jwt'))
   @HttpCode(HttpStatus.OK)
@@ -80,6 +85,7 @@ export class AuthController {
   }
 
   @ApiBearerAuth()
+  @Response('auth.success')
   @Patch('me')
   @UseGuards(AuthGuard('jwt'))
   @HttpCode(HttpStatus.OK)
@@ -87,6 +93,7 @@ export class AuthController {
     return this.service.update(request.user, userDto);
   }
 
+  @Response('auth.success')
   @ApiBearerAuth()
   @Delete('me')
   @UseGuards(AuthGuard('jwt'))

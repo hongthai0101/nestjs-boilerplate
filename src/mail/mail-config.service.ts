@@ -8,14 +8,12 @@ import { HandlebarsAdapter } from '@nestjs-modules/mailer/dist/adapters/handleba
 export class MailConfigService implements MailerOptionsFactory {
   constructor(private configService: ConfigService) {}
 
-  createMailerOptions(): MailerOptions {
+  createMailerOptions(): MailerOptions {    
     return {
       transport: {
         host: this.configService.get('mail.host'),
         port: this.configService.get('mail.port'),
-        ignoreTLS: this.configService.get('mail.ignoreTLS'),
-        secure: this.configService.get('mail.secure'),
-        requireTLS: this.configService.get('mail.requireTLS'),
+        secure: false,
         auth: {
           user: this.configService.get('mail.user'),
           pass: this.configService.get('mail.password'),

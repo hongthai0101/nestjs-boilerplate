@@ -10,7 +10,7 @@ import { UserEntity } from '../../users/entities/user.entity';
 import { Allow } from 'class-validator';
 import { AbstractEntity } from 'src/base';
 
-@Entity()
+@Entity({name: 'forgot'})
 export class ForgotEntity extends AbstractEntity {
   @PrimaryGeneratedColumn()
   id: number;

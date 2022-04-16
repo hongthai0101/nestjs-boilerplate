@@ -64,15 +64,15 @@ export class CapitalFlowService extends BaseService<CapitalFlowEntity> {
     endDate = endDate || moment().format('YYYY-MM-DD')
 
     const result = await this.repository
-    .createQueryBuilder('F')
-      .select(`SUM(F.price) as amount, T.type, to_date("T"."createdAt"::TEXT, 'YYYY-MM-DD') AS date`)
+      .createQueryBuilder('F')
+      .select(`SUM(F.price) as amount, T.type, to_date("F"."createdAt"::TEXT, 'YYYY-MM-DD') AS date`)
       .innerJoin(CapitalFlowTypeEntity, 'T', 'F.typeId = T.id')
       .where('F.uid = :uid', { uid: this.auth.id })
-      .andWhere(`to_date("T"."createdAt"::TEXT, 'YYYY-MM-DD') >= :startDate`, { startDate })
-      .andWhere(`to_date("T"."createdAt"::TEXT, 'YYYY-MM-DD') <= :endDate`, { endDate })
+      .andWhere(`to_date("F"."createdAt"::TEXT, 'YYYY-MM-DD') >= :startDate`, { startDate })
+      .andWhere(`to_date("F"."createdAt"::TEXT, 'YYYY-MM-DD') <= :endDate`, { endDate })
       .groupBy('T.type')
-      .addGroupBy('T.createdAt')
-      .orderBy('T.createdAt')
+      .addGroupBy('F.createdAt')
+      .orderBy('F.createdAt')
       .getRawMany();
 
     const durations = this.dateService.diff(startDate, endDate, 'days');
@@ -80,7 +80,7 @@ export class CapitalFlowService extends BaseService<CapitalFlowEntity> {
 
     for (let i = 0; i < durations; i++) {
       const date = this.dateService.forwardInDays(startDate, i);
-      const payload:ISumPriceByDateResult  = {
+      const payload: ISumPriceByDateResult = {
         date: this.dateService.toString(date),
         price: 0,
         name: 'income',
@@ -92,18 +92,18 @@ export class CapitalFlowService extends BaseService<CapitalFlowEntity> {
         type: 2
       })
     }
-
+    
     result.forEach(item => {
-      const idx = data.findIndex(el => el.date === item.date)
+      const idx = data.findIndex(el => this.dateService.isSame(el.date, item.date))
+      
       if (~idx) {
         if (item.type === 1) {
-          data[idx].price = item.price
+          data[idx].price = item.amount
         } else {
-          data[idx + 1].price = item.price
+          data[idx + 1].price = item.amount
         }
       }
     })
-
     return data
   }
 
@@ -121,7 +121,7 @@ export class CapitalFlowService extends BaseService<CapitalFlowEntity> {
     filter: FindManyOptions<CapitalFlowEntity>,
     startDate: Date,
     endDate: Date,
-    type: string,
+    type: number,
     keyword: string,
     typeName: string
   ): Promise<IPaginationResponse> {
@@ -149,7 +149,7 @@ export class CapitalFlowService extends BaseService<CapitalFlowEntity> {
   public async calculateFunds(
     startDate: Date,
     endDate: Date,
-    type: string,
+    type: number,
     keyword: string,
     typeName: string
   ): Promise<ICalculateFundResult> {
@@ -161,8 +161,8 @@ export class CapitalFlowService extends BaseService<CapitalFlowEntity> {
       .andWhere('F.createdAt >= :startDate', { startDate })
       .andWhere('F.createdAt <= :endDate', { endDate });
 
-    if (typeName) builder.andWhere('T.type = :typeName', { typeName: `%${typeName}%` })
-    if (type) builder.andWhere('F.typeId = :typeId', { typeId: type })
+    if (typeName) builder.andWhere('F.typeId = :typeName', { typeName })
+    if (type) builder.andWhere('T.type = :type', { type })
     if (keyword) builder.andWhere('F.remark = :remark', { remark: `%${keyword}%` })
 
     const result = await builder.groupBy('T.type').getRawMany();
@@ -200,15 +200,15 @@ export class CapitalFlowService extends BaseService<CapitalFlowEntity> {
     filter: FindManyOptions<CapitalFlowEntity>,
     startDate: Date,
     endDate: Date,
-    type: string,
+    type: number,
     keyword: string,
     typeName: string
   ): FindManyOptions<CapitalFlowEntity> {
     const where = { uid: this.auth.id };
     if (startDate && endDate)
       Object.assign(where, { createdAt: Between(startDate, endDate) });
-    if (type) Object.assign(where, { type: { id: type } });
-    if (typeName) Object.assign(where, { type: { type: typeName } });
+    if (type) Object.assign(where, { type: { type } });
+    if (typeName) Object.assign(where, { type: { id: typeName } });
     if (keyword) Object.assign(where, { remark: Like(`${keyword}`) });
 
     return { ...filter, where }

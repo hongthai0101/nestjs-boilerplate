@@ -9,6 +9,7 @@ import multerS3 from 'multer-s3';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { FileEntity } from './entities/file.entity';
 import { FilesService } from './files.service';
+import { ENUM_STATUS_CODE_ERROR } from 'src/utils';
 
 @Module({
   imports: [
@@ -62,14 +63,12 @@ import { FilesService } from './files.service';
 
         return {
           fileFilter: (request, file, callback) => {
-            if (!file.originalname.match(/\.(jpg|jpeg|png|gif)$/i)) {
+            if (!file.originalname.match(/\.(jpg|jpeg|png|gif|pdf)$/i)) {
               return callback(
                 new HttpException(
                   {
-                    status: HttpStatus.UNPROCESSABLE_ENTITY,
-                    errors: {
-                      file: `cantUploadFileType`,
-                    },
+                    statusCode: ENUM_STATUS_CODE_ERROR.REQUEST_VALIDATION_ERROR,
+                    message: 'request.cantUploadFileType'
                   },
                   HttpStatus.UNPROCESSABLE_ENTITY,
                 ),

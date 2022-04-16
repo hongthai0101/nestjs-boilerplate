@@ -21,7 +21,7 @@ export abstract class AbstractCoreService<T> {
   public abstract update(
     id: IdType,
     updatedDoc: AbstractDocument<T>,
-  ): Promise<UpdateResultType<T>>;
+  ): Promise<T>;
 
   public abstract delete(id: IdType): Promise<DeleteResultType<T>>;
 

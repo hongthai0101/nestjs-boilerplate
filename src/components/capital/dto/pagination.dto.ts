@@ -1,6 +1,6 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { Type } from 'class-transformer';
-import { IsDate, IsOptional, IsUUID } from 'class-validator';
+import { IsDate, IsEnum, IsNumber, IsOptional, IsUUID } from 'class-validator';
 import { QueryBaseList } from 'src/utils';
 
 export class FlowPaginationDto extends QueryBaseList {
@@ -8,8 +8,9 @@ export class FlowPaginationDto extends QueryBaseList {
     required: false,
   })
   @IsOptional()
-  @IsUUID()
-  readonly type: string;
+  @Type(() => Number)
+  @IsEnum([1, 2])
+  readonly type: number;
 
   @ApiProperty({
     required: false,

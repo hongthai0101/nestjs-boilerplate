@@ -22,8 +22,8 @@ export class BaseService<T extends AbstractEntity>
   @Inject(REQUEST) protected request: Request;
 
   protected get auth(): UserEntity {    
-    const user = this.request.user;
-    return user as UserEntity;
+    if(!this.request) return null;    
+    return this.request.user as UserEntity;
   }
 
   protected repository: Repository<T>;
@@ -72,7 +72,11 @@ export class BaseService<T extends AbstractEntity>
   }
 
   public create(doc: AbstractDocument<T> | any): Promise<T> {
-    const entity = this.repository.create({ ...doc, uid: this.auth.id });    
+    if(this.auth) {
+      doc = { ...doc, uid: this.auth.id }
+    }
+    
+    const entity = this.repository.create(doc);    
     return this.repository.save(entity as any);
   }
 
@@ -85,14 +89,10 @@ export class BaseService<T extends AbstractEntity>
   public async update(
     id: IdType,
     updatedDoc: AbstractDocument<T> | any,
-  ): Promise<UpdateResultType<T>> {
-
-    await this.findById(id);
-
-    return this.repository.update(
-      id,
-      updatedDoc as object as QueryDeepPartialEntity<T>,
-    );
+  ): Promise<T> {
+    const entity = this.repository.create({id, ...updatedDoc});    
+    this.repository.save(entity as any);
+    return this.findById(id)
   }
 
   public async delete(id: IdType): Promise<DeleteResultType<T>> {

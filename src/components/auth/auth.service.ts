@@ -18,6 +18,7 @@ import { HelperHashService } from 'src/helper/service';
 import { randomStringGenerator } from '@nestjs/common/utils/random-string-generator.util';
 import { createHash } from 'crypto';
 import moment from 'moment';
+import { ENUM_STATUS_CODE_ERROR } from 'src/utils';
 
 @Injectable()
 export class AuthService {
@@ -28,7 +29,7 @@ export class AuthService {
     private mailService: MailService,
     private configService: ConfigService,
     private hashService: HelperHashService,
-  ) {}
+  ) { }
 
   /**
    *
@@ -39,7 +40,7 @@ export class AuthService {
   async validateLogin(
     loginDto: AuthEmailLoginDto,
     onlyAdmin: boolean,
-  ): Promise<{ token: string; userInfo: UserEntity; expiresIn: number, expireAt: number }> {    
+  ): Promise<{ token: string; userInfo: UserEntity; expiresIn: number, expireAt: number }> {
     const user = await this.usersService.findOne({
       where: { email: loginDto.email },
     });
@@ -52,10 +53,8 @@ export class AuthService {
     ) {
       throw new HttpException(
         {
-          status: HttpStatus.UNPROCESSABLE_ENTITY,
-          errors: {
-            email: 'notFound',
-          },
+          statusCode: ENUM_STATUS_CODE_ERROR.NOT_FOUND,
+          message: 'request.notFound'
         },
         HttpStatus.UNPROCESSABLE_ENTITY,
       );
@@ -65,10 +64,8 @@ export class AuthService {
     if (provider !== AuthProvidersEnum.email) {
       throw new HttpException(
         {
-          status: HttpStatus.UNPROCESSABLE_ENTITY,
-          errors: {
-            email: `needLoginViaProvider:${provider}`,
-          },
+          statusCode: ENUM_STATUS_CODE_ERROR.REQUEST_VALIDATION_ERROR,
+          message: 'request.needLoginViaProvider' + provider
         },
         HttpStatus.UNPROCESSABLE_ENTITY,
       );
@@ -81,7 +78,7 @@ export class AuthService {
 
     if (isValidPassword) {
       const expiresIn = loginDto.rememberMe ? this.configService.get('auth.expireRememberMe') : this.configService.get('auth.expires');
-      const options: JwtSignOptions = loginDto.rememberMe ? {expiresIn} : {};
+      const options: JwtSignOptions = loginDto.rememberMe ? { expiresIn } : {};
       const token = await this.jwtService.sign({
         id: user.id,
         email,
@@ -99,10 +96,8 @@ export class AuthService {
     } else {
       throw new HttpException(
         {
-          status: HttpStatus.UNPROCESSABLE_ENTITY,
-          errors: {
-            password: 'request.incorrectPassword',
-          },
+          statusCode: ENUM_STATUS_CODE_ERROR.REQUEST_VALIDATION_ERROR,
+          message: 'request.incorrectPassword'
         },
         HttpStatus.UNPROCESSABLE_ENTITY,
       );
@@ -203,8 +198,8 @@ export class AuthService {
     if (!user) {
       throw new HttpException(
         {
-          status: HttpStatus.NOT_FOUND,
-          error: `notFound`,
+          statusCode: ENUM_STATUS_CODE_ERROR.NOT_FOUND,
+          message: 'request.notFound'
         },
         HttpStatus.NOT_FOUND,
       );
@@ -223,10 +218,8 @@ export class AuthService {
     if (!user) {
       throw new HttpException(
         {
-          status: HttpStatus.UNPROCESSABLE_ENTITY,
-          errors: {
-            email: 'emailNotExists',
-          },
+          statusCode: ENUM_STATUS_CODE_ERROR.NOT_FOUND,
+          message: 'request.notFound'
         },
         HttpStatus.UNPROCESSABLE_ENTITY,
       );
@@ -258,10 +251,8 @@ export class AuthService {
     if (!forgot) {
       throw new HttpException(
         {
-          status: HttpStatus.UNPROCESSABLE_ENTITY,
-          errors: {
-            hash: `notFound`,
-          },
+          statusCode: ENUM_STATUS_CODE_ERROR.NOT_FOUND,
+          message: 'request.notFound'
         },
         HttpStatus.UNPROCESSABLE_ENTITY,
       );
@@ -290,10 +281,8 @@ export class AuthService {
         if (!isValidOldPassword) {
           throw new HttpException(
             {
-              status: HttpStatus.UNPROCESSABLE_ENTITY,
-              errors: {
-                oldPassword: 'incorrectOldPassword',
-              },
+              statusCode: ENUM_STATUS_CODE_ERROR.REQUEST_VALIDATION_ERROR,
+              message: 'request.incorrectOldPassword'
             },
             HttpStatus.UNPROCESSABLE_ENTITY,
           );
@@ -301,17 +290,15 @@ export class AuthService {
       } else {
         throw new HttpException(
           {
-            status: HttpStatus.UNPROCESSABLE_ENTITY,
-            errors: {
-              oldPassword: 'missingOldPassword',
-            },
+            statusCode: ENUM_STATUS_CODE_ERROR.REQUEST_VALIDATION_ERROR,
+            message: 'request.missingOldPassword'
           },
           HttpStatus.UNPROCESSABLE_ENTITY,
         );
       }
     }
 
-    await this.usersService.update(user.id, userDto);
+    await this.usersService.update(user.id, omit(userDto, ['oldPassword']));
 
     return this.usersService.findById(user.id);
   }

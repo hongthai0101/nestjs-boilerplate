@@ -1,5 +1,5 @@
 import { Injectable } from '@nestjs/common';
-import moment from 'moment';
+import moment, {unitOfTime} from 'moment';
 
 @Injectable()
 export class HelperDateService {
@@ -64,5 +64,9 @@ export class HelperDateService {
 
   backwardInMonths(months: number): Date {
     return moment().subtract(months, 'M').toDate();
+  }
+
+  isSame(first: string | Date, second: string | Date, unit: unitOfTime.StartOf = 'D'): boolean {
+    return moment(first).isSame(second, unit)
   }
 }

@@ -36,7 +36,7 @@ export class UserEntity extends AbstractEntity {
 
   @BeforeInsert()
   @BeforeUpdate()
-  async setPassword() {
+  async setPassword() {    
     if (this.previousPassword !== this.password && this.password) {
       const salt = await bcrypt.genSalt();
       this.password = await bcrypt.hash(this.password, salt);
@@ -58,7 +58,8 @@ export class UserEntity extends AbstractEntity {
   @Column({ nullable: true })
   lastName: string | null;
 
-  avatar?: string;
+  @Column({ nullable: true })
+  avatar: string | null;
 
   @ManyToOne(() => RoleEntity, {
     eager: true,
